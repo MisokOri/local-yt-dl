@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YT Converter</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  </head>
+
+  <body
+    class="bg-slate-950 text-white min-h-screen flex items-center justify-center p-6">
+    <main class="w-full max-w-xl">
+      <!-- Header -->
+      <div class="text-center mb-10">
+        <div class="text-red-500 text-5xl mb-4">
+          <i class="fa-brands fa-youtube"></i>
+        </div>
+        <h1 class="text-3xl font-bold">YT Converter</h1>
+        <p class="text-slate-400 mt-2">Convert video menjadi MP3 atau MP4</p>
+      </div>
+
+      <!-- Form -->
+      <div
+        class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <form id="convertForm">
+          <label class="block text-sm text-slate-300 mb-2"> URL YouTube </label>
+
+          <div class="relative mb-6">
+            <i
+              class="fa-solid fa-link absolute left-4 top-4 text-slate-500"></i>
+            <input
+              type="url"
+              name="url"
+              required
+              placeholder="https://www.youtube.com/watch?v=..."
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-11 pr-4 py-3 outline-none focus:border-red-500 transition" />
+          </div>
+
+          <label class="block text-sm text-slate-300 mb-2"> Format </label>
+
+          <div class="grid grid-cols-2 gap-3 mb-6">
+            <label class="cursor-pointer">
+              <input
+                type="radio"
+                name="format"
+                value="mp3"
+                class="peer hidden"
+                checked />
+              <div
+                class="bg-slate-800 border border-slate-700 rounded-xl p-4 text-center transition peer-checked:bg-red-600 peer-checked:border-red-500">
+                <i class="fa-solid fa-music mr-2"></i> MP3
+              </div>
+            </label>
+
+            <label class="cursor-pointer">
+              <input
+                type="radio"
+                name="format"
+                value="mp4"
+                class="peer hidden" />
+              <div
+                class="bg-slate-800 border border-slate-700 rounded-xl p-4 text-center transition peer-checked:bg-red-600 peer-checked:border-red-500">
+                <i class="fa-solid fa-video mr-2"></i> MP4
+              </div>
+            </label>
+          </div>
+
+          <label class="block text-sm text-slate-300 mb-2">
+            Resolusi Video
+          </label>
+
+          <select
+            name="resolution"
+            class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 mb-6 outline-none focus:border-red-500">
+            <option value="best">Best Quality</option>
+            <option value="1080">1080p</option>
+            <option value="720">720p</option>
+            <option value="480">480p</option>
+            <option value="360">360p</option>
+          </select>
+
+          <button
+            id="convertBtn"
+            type="submit"
+            class="w-full bg-red-600 hover:bg-red-700 rounded-xl py-3 font-semibold transition">
+            <i class="fa-solid fa-download mr-2"></i>
+            Convert
+          </button>
+        </form>
+      </div>
+
+      <div class="text-center text-xs text-slate-500 mt-6">
+        <i class="fa-solid fa-computer mr-1"></i>
+        Local Application
+      </div>
+    </main>
+
+    <!-- MODAL -->
+    <div
+      id="progressModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-5 z-50">
+      <div
+        class="bg-slate-900 border border-slate-700 rounded-2xl p-7 w-full max-w-md shadow-2xl">
+        <!-- Loading -->
+        <div id="loadingContent">
+          <div class="text-center mb-6">
+            <div class="text-red-500 text-4xl mb-4">
+              <i class="fa-solid fa-circle-notch fa-spin"></i>
+            </div>
+
+            <h2 class="text-xl font-bold">Sedang Memproses</h2>
+
+            <p id="progressMessage" class="text-slate-400 text-sm mt-2">
+              Menyiapkan konversi...
+            </p>
+          </div>
+
+          <!-- Progress -->
+          <div class="flex justify-between text-sm mb-2">
+            <span class="text-slate-400">Progress</span>
+            <span id="progressPercent" class="font-bold text-red-400">0%</span>
+          </div>
+
+          <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+            <div
+              id="progressBar"
+              class="h-full bg-red-500 rounded-full transition-all duration-300"
+              style="width: 0%"></div>
+          </div>
+
+          <p class="text-xs text-slate-500 text-center mt-5">
+            Mohon tunggu, jangan tutup aplikasi.
+          </p>
+        </div>
+
+        <!-- Success -->
+        <div id="successContent" class="hidden text-center">
+          <div class="text-green-500 text-5xl mb-5">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+
+          <h2 class="text-xl font-bold">Konversi Berhasil!</h2>
+
+          <p class="text-slate-400 text-sm mt-2 mb-7">
+            File berhasil disimpan di folder downloads.
+          </p>
+
+          <button
+            onclick="resetConverter()"
+            class="w-full bg-red-600 hover:bg-red-700 rounded-xl py-3 font-semibold transition">
+            <i class="fa-solid fa-rotate-right mr-2"></i>
+            Konversi Lagi
+          </button>
+        </div>
+
+        <!-- Error -->
+        <div id="errorContent" class="hidden text-center">
+          <div class="text-red-500 text-5xl mb-5">
+            <i class="fa-solid fa-circle-xmark"></i>
+          </div>
+
+          <h2 class="text-xl font-bold">Konversi Gagal</h2>
+
+          <p
+            id="errorMessage"
+            class="text-slate-400 text-sm mt-3 mb-7 break-words"></p>
+
+          <button
+            onclick="resetConverter()"
+            class="w-full bg-slate-700 hover:bg-slate-600 rounded-xl py-3 font-semibold transition">
+            Coba Lagi
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById("convertForm");
+      const modal = document.getElementById("progressModal");
+
+      const loadingContent = document.getElementById("loadingContent");
+      const successContent = document.getElementById("successContent");
+      const errorContent = document.getElementById("errorContent");
+
+      const progressBar = document.getElementById("progressBar");
+      const progressPercent = document.getElementById("progressPercent");
+      const progressMessage = document.getElementById("progressMessage");
+
+      let pollingTimer = null;
+      let currentJobId = null;
+
+      function showModal() {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+
+      function hideModal() {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+
+      function showContent(content) {
+        loadingContent.classList.add("hidden");
+        successContent.classList.add("hidden");
+        errorContent.classList.add("hidden");
+
+        content.classList.remove("hidden");
+      }
+
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const button = document.getElementById("convertBtn");
+
+        button.disabled = true;
+        button.innerHTML =
+          '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Memulai...';
+
+        showContent(loadingContent);
+        progressBar.style.width = "0%";
+        progressPercent.textContent = "0%";
+        progressMessage.textContent = "Menyiapkan konversi...";
+
+        showModal();
+
+        try {
+          const response = await fetch("/convert", {
+            method: "POST",
+            body: new FormData(form),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || "Gagal memulai konversi");
+          }
+
+          currentJobId = data.job_id;
+
+          pollProgress();
+        } catch (error) {
+          showError(error.message);
+          button.disabled = false;
+          button.innerHTML =
+            '<i class="fa-solid fa-download mr-2"></i> Convert';
+        }
+      });
+
+      async function pollProgress() {
+        try {
+          const response = await fetch(`/progress/${currentJobId}`);
+
+          if (!response.ok) {
+            throw new Error("Tidak dapat membaca status konversi");
+          }
+
+          const data = await response.json();
+
+          const percent = Number(data.progress) || 0;
+
+          progressBar.style.width = `${percent}%`;
+          progressPercent.textContent = `${percent}%`;
+          progressMessage.textContent = data.message;
+
+          if (data.status === "completed") {
+            showContent(successContent);
+            return;
+          }
+
+          if (data.status === "error") {
+            showError(data.message);
+            return;
+          }
+
+          pollingTimer = setTimeout(pollProgress, 800);
+        } catch (error) {
+          showError(error.message);
+        }
+      }
+
+      function showError(message) {
+        showContent(errorContent);
+        document.getElementById("errorMessage").textContent = message;
+      }
+
+      function resetConverter() {
+        if (pollingTimer) {
+          clearTimeout(pollingTimer);
+        }
+
+        currentJobId = null;
+
+        hideModal();
+
+        form.reset();
+
+        const button = document.getElementById("convertBtn");
+        button.disabled = false;
+        button.innerHTML = '<i class="fa-solid fa-download mr-2"></i> Convert';
+      }
+    </script>
+  </body>
+</html>
