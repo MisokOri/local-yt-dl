@@ -25,6 +25,7 @@ Aplikasi ini dikembangkan dan diuji menggunakan lingkungan berikut:
   - `itsdangerous==2.2.0`
   - `MarkupSafe==3.0.4`
   - `blinker==1.9.0`
+  - `yt-dlp==2026.11.23`
 
 _(Catatan: Pastikan Anda juga telah memasang `yt-dlp` dan `FFmpeg` di sistem/environment Anda jika aplikasi menggunakannya di balik layar untuk proses ekstraksi dan konversi media)._
 
@@ -35,8 +36,8 @@ _(Catatan: Pastikan Anda juga telah memasang `yt-dlp` dan `FFmpeg` di sistem/env
 1. **Clone repositori ini:**
 
    ```bash
-   git clone https://github.com/username-anda/nama-repo-anda.git
-   cd nama-repo-anda
+   git clone https://github.com/MisokOri/youtubedownloader
+   cd youtubedownloader
    ```
 
 2. **Buat dan aktifkan Virtual Environment (Opsional namun disarankan):**
